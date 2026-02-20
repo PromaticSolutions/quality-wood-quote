@@ -9,32 +9,42 @@ export async function generateBudgetPDF(budget: Budget) {
   let y = margin;
 
   const colors = {
-    primary: [26, 58, 82] as [number, number, number],
-    accent: [45, 90, 140] as [number, number, number],
-    lightBg: [240, 244, 248] as [number, number, number],
-    text: [51, 51, 51] as [number, number, number],
+    primary: [62, 40, 20] as [number, number, number],       // warm dark brown
+    accent: [180, 140, 80] as [number, number, number],      // warm gold
+    lightBg: [245, 240, 232] as [number, number, number],    // warm cream
+    text: [51, 42, 33] as [number, number, number],          // warm dark
     white: [255, 255, 255] as [number, number, number],
-    border: [208, 216, 224] as [number, number, number],
+    border: [215, 200, 180] as [number, number, number],     // warm border
+    wood: [140, 90, 50] as [number, number, number],         // medium wood
   };
 
   function checkPage(needed: number) {
     if (y + needed > 280) {
       doc.addPage();
+      // Add decorative strip on new pages too
+      doc.setFillColor(...colors.accent);
+      doc.rect(0, 0, pageWidth, 3, 'F');
       y = margin;
     }
   }
 
+  // Decorative gold strip at the very top
+  doc.setFillColor(...colors.accent);
+  doc.rect(0, 0, pageWidth, 3, 'F');
+
   // Header
   doc.setFillColor(...colors.primary);
-  doc.rect(0, 0, pageWidth, 32, 'F');
+  doc.rect(0, 3, pageWidth, 29, 'F');
   doc.setTextColor(...colors.white);
   doc.setFontSize(20);
   doc.setFont('helvetica', 'bold');
-  doc.text('MARCENARIA QUALITY', margin, 15);
+  doc.text('MARCENARIA QUALITY', margin, 18);
   doc.setFontSize(9);
   doc.setFont('helvetica', 'normal');
-  doc.text('Orçamento de Projeto', margin, 22);
-  doc.text(new Date().toLocaleDateString('pt-BR'), pageWidth - margin, 15, { align: 'right' });
+  doc.text('Orçamento de Projeto', margin, 25);
+  doc.setFontSize(8);
+  doc.text('CNPJ: 63.111.412/0001.19', pageWidth - margin, 18, { align: 'right' });
+  doc.text(new Date().toLocaleDateString('pt-BR'), pageWidth - margin, 25, { align: 'right' });
   y = 40;
 
   // Client info
@@ -180,7 +190,7 @@ export async function generateBudgetPDF(budget: Budget) {
   doc.text('Marcenaria Quality', margin, footerY);
   doc.setFont('helvetica', 'normal');
   doc.setTextColor(...colors.text);
-  doc.text('Pablo Santos  •  (11) 91639-5199', margin, footerY + 4);
+  doc.text('CNPJ: 63.111.412/0001.19  •  Pablo Santos  •  (11) 91639-5199', margin, footerY + 4);
 
   const fileName = `Orcamento_${budget.clientName?.replace(/\s+/g, '_') || 'novo'}_${new Date().toISOString().slice(0, 10)}.pdf`;
   doc.save(fileName);
