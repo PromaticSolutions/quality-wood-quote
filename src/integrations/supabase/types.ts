@@ -14,7 +14,124 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      budgets: {
+        Row: {
+          architect_name: string | null
+          client_name: string | null
+          created_at: string
+          custom_total: number | null
+          delivery_days: number | null
+          id: string
+          payment_terms: string | null
+          status: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          architect_name?: string | null
+          client_name?: string | null
+          created_at?: string
+          custom_total?: number | null
+          delivery_days?: number | null
+          id?: string
+          payment_terms?: string | null
+          status?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          architect_name?: string | null
+          client_name?: string | null
+          created_at?: string
+          custom_total?: number | null
+          delivery_days?: number | null
+          id?: string
+          payment_terms?: string | null
+          status?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      items: {
+        Row: {
+          created_at: string
+          display_order: number | null
+          id: string
+          measurements: string | null
+          name: string
+          observations: string | null
+          room_id: string
+          updated_at: string
+          value: number
+        }
+        Insert: {
+          created_at?: string
+          display_order?: number | null
+          id?: string
+          measurements?: string | null
+          name: string
+          observations?: string | null
+          room_id: string
+          updated_at?: string
+          value: number
+        }
+        Update: {
+          created_at?: string
+          display_order?: number | null
+          id?: string
+          measurements?: string | null
+          name?: string
+          observations?: string | null
+          room_id?: string
+          updated_at?: string
+          value?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "items_room_id_fkey"
+            columns: ["room_id"]
+            isOneToOne: false
+            referencedRelation: "rooms"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      rooms: {
+        Row: {
+          budget_id: string
+          created_at: string
+          display_order: number | null
+          id: string
+          name: string
+          updated_at: string
+        }
+        Insert: {
+          budget_id: string
+          created_at?: string
+          display_order?: number | null
+          id?: string
+          name: string
+          updated_at?: string
+        }
+        Update: {
+          budget_id?: string
+          created_at?: string
+          display_order?: number | null
+          id?: string
+          name?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rooms_budget_id_fkey"
+            columns: ["budget_id"]
+            isOneToOne: false
+            referencedRelation: "budgets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never

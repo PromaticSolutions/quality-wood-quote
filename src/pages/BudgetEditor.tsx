@@ -7,8 +7,12 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from '@/components/ui/dialog';
-import { getBudget, updateBudget } from '@/store/budgetStore';
-import { Budget, Room, BudgetItem, generateId, calculateRoomSubtotal, calculateBudgetTotal, formatCurrency } from '@/types/budget';
+import {
+  getBudget, updateBudgetInfo,
+  createRoom as dbCreateRoom, updateRoom as dbUpdateRoom, deleteRoom as dbDeleteRoom,
+  createItem as dbCreateItem, updateItem as dbUpdateItem, deleteItem as dbDeleteItem,
+} from '@/store/budgetStore';
+import { Budget, Room, BudgetItem, calculateRoomSubtotal, calculateBudgetTotal, formatCurrency } from '@/types/budget';
 import { generateBudgetPDF } from '@/lib/pdfExport';
 import { toast } from 'sonner';
 
@@ -17,6 +21,7 @@ export default function BudgetEditor() {
   const navigate = useNavigate();
   const [budget, setBudget] = useState<Budget | null>(null);
   const [expandedRooms, setExpandedRooms] = useState<Set<string>>(new Set());
+  const [loading, setLoading] = useState(true);
 
   // Modals
   const [showRoomModal, setShowRoomModal] = useState(false);
@@ -31,31 +36,31 @@ export default function BudgetEditor() {
   const [itemMeasurements, setItemMeasurements] = useState('');
   const [itemObservations, setItemObservations] = useState('');
 
-  useEffect(() => {
-    if (id) {
-      const b = getBudget(id);
-      if (b) {
-        setBudget(b);
-        setExpandedRooms(new Set(b.rooms.map(r => r.id)));
-      } else {
-        navigate('/');
-      }
+  const reload = useCallback(async () => {
+    if (!id) return;
+    const b = await getBudget(id);
+    if (b) {
+      setBudget(b);
+      setExpandedRooms(prev => prev.size > 0 ? prev : new Set(b.rooms.map(r => r.id)));
+    } else {
+      navigate('/');
     }
+    setLoading(false);
   }, [id, navigate]);
 
-  const save = useCallback((updated: Budget) => {
-    setBudget(updated);
-    updateBudget(updated.id, updated);
-  }, []);
+  useEffect(() => { reload(); }, [reload]);
 
+  if (loading) return <div className="flex items-center justify-center py-20 text-muted-foreground">Carregando...</div>;
   if (!budget) return null;
 
   const total = calculateBudgetTotal(budget);
   const displayTotal = budget.customTotal ?? total;
 
   // Budget info handlers
-  function updateField(field: keyof Budget, value: string | number) {
-    save({ ...budget, [field]: value });
+  async function updateField(field: keyof Budget, value: string | number) {
+    const updated = { ...budget!, [field]: value };
+    setBudget(updated);
+    await updateBudgetInfo(budget!.id, { [field]: value });
   }
 
   // Room handlers
@@ -69,19 +74,23 @@ export default function BudgetEditor() {
     setRoomName(room.name);
     setShowRoomModal(true);
   }
-  function saveRoom() {
+  async function saveRoom() {
     if (!roomName.trim()) return;
-    let rooms = [...budget.rooms];
-    if (editingRoom) {
-      rooms = rooms.map(r => r.id === editingRoom.id ? { ...r, name: roomName.trim() } : r);
-    } else {
-      rooms.push({ id: generateId(), budgetId: budget.id, name: roomName.trim(), items: [], displayOrder: rooms.length });
+    try {
+      if (editingRoom) {
+        await dbUpdateRoom(editingRoom.id, roomName.trim());
+      } else {
+        await dbCreateRoom(budget!.id, roomName.trim(), budget!.rooms.length);
+      }
+      setShowRoomModal(false);
+      await reload();
+    } catch {
+      toast.error('Erro ao salvar cômodo');
     }
-    save({ ...budget, rooms });
-    setShowRoomModal(false);
   }
-  function deleteRoom(roomId: string) {
-    save({ ...budget, rooms: budget.rooms.filter(r => r.id !== roomId) });
+  async function handleDeleteRoom(roomId: string) {
+    await dbDeleteRoom(roomId);
+    await reload();
   }
 
   // Item handlers
@@ -103,35 +112,35 @@ export default function BudgetEditor() {
     setItemObservations(item.observations || '');
     setShowItemModal(true);
   }
-  function saveItem() {
+  async function saveItem() {
     if (!itemName.trim() || !itemValue || Number(itemValue) <= 0) return;
-    const rooms = budget.rooms.map(r => {
-      if (r.id !== itemRoomId) return r;
-      let items = [...r.items];
+    try {
       if (editingItem) {
-        items = items.map(i => i.id === editingItem.id ? {
-          ...i, name: itemName.trim(), value: Number(itemValue),
+        await dbUpdateItem(editingItem.id, {
+          name: itemName.trim(),
+          value: Number(itemValue),
           measurements: itemMeasurements.trim() || undefined,
           observations: itemObservations.trim() || undefined,
-        } : i);
+        });
       } else {
-        items.push({
-          id: generateId(), roomId: r.id, name: itemName.trim(), value: Number(itemValue),
+        const room = budget!.rooms.find(r => r.id === itemRoomId);
+        await dbCreateItem(itemRoomId, {
+          name: itemName.trim(),
+          value: Number(itemValue),
           measurements: itemMeasurements.trim() || undefined,
           observations: itemObservations.trim() || undefined,
-          displayOrder: items.length,
+          displayOrder: room ? room.items.length : 0,
         });
       }
-      return { ...r, items };
-    });
-    save({ ...budget, rooms });
-    setShowItemModal(false);
+      setShowItemModal(false);
+      await reload();
+    } catch {
+      toast.error('Erro ao salvar item');
+    }
   }
-  function deleteItem(roomId: string, itemId: string) {
-    const rooms = budget.rooms.map(r =>
-      r.id === roomId ? { ...r, items: r.items.filter(i => i.id !== itemId) } : r
-    );
-    save({ ...budget, rooms });
+  async function handleDeleteItem(itemId: string) {
+    await dbDeleteItem(itemId);
+    await reload();
   }
 
   function toggleRoom(roomId: string) {
@@ -144,7 +153,7 @@ export default function BudgetEditor() {
 
   async function handleExportPDF() {
     try {
-      await generateBudgetPDF(budget);
+      await generateBudgetPDF(budget!);
       toast.success('PDF exportado com sucesso!');
     } catch {
       toast.error('Erro ao exportar PDF');
@@ -236,7 +245,7 @@ export default function BudgetEditor() {
                     <Button variant="ghost" size="icon" className="h-7 w-7" onClick={e => { e.stopPropagation(); openEditRoom(room); }}>
                       <Pencil className="h-3.5 w-3.5" />
                     </Button>
-                    <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive" onClick={e => { e.stopPropagation(); deleteRoom(room.id); }}>
+                    <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive" onClick={e => { e.stopPropagation(); handleDeleteRoom(room.id); }}>
                       <Trash2 className="h-3.5 w-3.5" />
                     </Button>
                   </div>
@@ -257,7 +266,7 @@ export default function BudgetEditor() {
                               <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => openEditItem(item)}>
                                 <Pencil className="h-3 w-3" />
                               </Button>
-                              <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive" onClick={() => deleteItem(room.id, item.id)}>
+                              <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive" onClick={() => handleDeleteItem(item.id)}>
                                 <Trash2 className="h-3 w-3" />
                               </Button>
                             </div>
@@ -298,14 +307,14 @@ export default function BudgetEditor() {
               <Input
                 type="number"
                 className="h-8 w-36 border-primary-foreground/30 bg-primary-foreground/10 text-right font-bold text-primary-foreground"
-                value={budget.customTotal ?? total}
+                value={displayTotal}
                 onChange={e => {
                   const v = Number(e.target.value);
-                  save({ ...budget, customTotal: v !== total ? v : undefined });
+                  updateField('customTotal', v !== total ? v : undefined as any);
                 }}
               />
               {budget.customTotal !== undefined && (
-                <Button variant="ghost" size="icon" className="h-7 w-7 text-primary-foreground/70" onClick={() => save({ ...budget, customTotal: undefined })}>
+                <Button variant="ghost" size="icon" className="h-7 w-7 text-primary-foreground/70" onClick={() => updateField('customTotal', undefined as any)}>
                   <X className="h-3.5 w-3.5" />
                 </Button>
               )}
