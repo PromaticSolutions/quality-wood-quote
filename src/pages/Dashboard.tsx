@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Plus, FileText, Trash2, Search, Calendar, User } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -9,6 +9,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '
 import { Label } from '@/components/ui/label';
 import { getAllBudgets, createBudget, deleteBudget } from '@/store/budgetStore';
 import { Budget, calculateBudgetTotal, formatCurrency } from '@/types/budget';
+import { toast } from 'sonner';
 
 const statusLabels: Record<string, string> = { draft: 'Rascunho', finalized: 'Finalizado', sent: 'Enviado' };
 const statusColors: Record<string, string> = {
@@ -19,25 +20,41 @@ const statusColors: Record<string, string> = {
 
 export default function Dashboard() {
   const navigate = useNavigate();
-  const [budgets, setBudgets] = useState<Budget[]>(getAllBudgets());
+  const [budgets, setBudgets] = useState<Budget[]>([]);
+  const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [showNew, setShowNew] = useState(false);
   const [newClient, setNewClient] = useState('');
   const [newArchitect, setNewArchitect] = useState('');
+
+  useEffect(() => {
+    loadBudgets();
+  }, []);
+
+  async function loadBudgets() {
+    setLoading(true);
+    const data = await getAllBudgets();
+    setBudgets(data);
+    setLoading(false);
+  }
 
   const filtered = budgets.filter(b =>
     b.clientName.toLowerCase().includes(search.toLowerCase()) ||
     b.architectName.toLowerCase().includes(search.toLowerCase())
   );
 
-  function handleCreate() {
-    const budget = createBudget({ clientName: newClient, architectName: newArchitect });
-    navigate(`/budget/${budget.id}`);
+  async function handleCreate() {
+    try {
+      const budget = await createBudget({ clientName: newClient, architectName: newArchitect });
+      navigate(`/budget/${budget.id}`);
+    } catch {
+      toast.error('Erro ao criar orçamento');
+    }
   }
 
-  function handleDelete(id: string) {
-    deleteBudget(id);
-    setBudgets(getAllBudgets());
+  async function handleDelete(id: string) {
+    await deleteBudget(id);
+    await loadBudgets();
   }
 
   return (
@@ -62,7 +79,9 @@ export default function Dashboard() {
         />
       </div>
 
-      {filtered.length === 0 ? (
+      {loading ? (
+        <div className="py-16 text-center text-muted-foreground">Carregando...</div>
+      ) : filtered.length === 0 ? (
         <Card>
           <CardContent className="flex flex-col items-center justify-center py-16 text-center">
             <FileText className="mb-4 h-12 w-12 text-muted-foreground/50" />
