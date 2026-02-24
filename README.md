@@ -1,73 +1,139 @@
-# Welcome to your Lovable project
+Aqui mais um projeto 100% em Inteligência Artificial
 
-## Project info
+GDOCS: Otimização de Orçamentos para Marcenarias com IA
 
-**URL**: https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID
+Bem-vindo ao GDOCS, um sistema revolucionário de geração de orçamentos, inicialmente concebido para o setor de marcenaria. Este projeto não é apenas uma ferramenta; é uma demonstração prática do poder da Inteligência Artificial no desenvolvimento de soluções de software ágeis e eficientes. Desenvolvido integralmente por IA, com a minha operação via prompts, em menos de 8 horas, o GDOCS visa transformar a maneira como marceneiros e outros empreiteiros gerenciam seus orçamentos.
 
-## How can I edit this code?
+O Desafio da Geração de Orçamentos Manuais
 
-There are several ways of editing your application.
+No setor de marcenaria, a criação de orçamentos detalhados para projetos complexos, que envolvem múltiplos cômodos, móveis personalizados e especificações variadas, é um processo demorado e propenso a erros. A lentidão na elaboração de propostas pode resultar na perda de oportunidades e na insatisfação do cliente. O GDOCS surge como a resposta a esse desafio, automatizando e agilizando todo o fluxo de trabalho.
 
-**Use Lovable**
+GDOCS: A Solução Inteligente para Seus Orçamentos
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and start prompting.
+O GDOCS é um sistema intuitivo e poderoso que permite:
 
-Changes made via Lovable will be committed automatically to this repo.
+•
+Geração Simultânea de Orçamentos: Armazene e gerencie múltiplos orçamentos em andamento, permitindo que o marceneiro trabalhe em diversas propostas ao mesmo tempo.
 
-**Use your preferred IDE**
+•
+Personalização Detalhada: O usuário seleciona o cômodo da casa, o tipo de móvel e insere detalhes como medidas, cores e valores específicos. O sistema calcula automaticamente o preço final de cada item.
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+•
+Adição Flexível de Itens: Adicione quantos móveis e cômodos forem necessários, construindo orçamentos complexos de forma modular e organizada.
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+•
+Cálculo Automático e Preciso: Elimine erros manuais com cálculos de valores em tempo real, garantindo a precisão das propostas.
 
-Follow these steps:
+•
+Geração de PDF Profissional: Ao finalizar o orçamento, o sistema gera um documento PDF claro e bem organizado, fácil de ser compreendido pelo cliente, sem a necessidade de explicações extensas.
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
+Desenvolvimento Acelerado por Inteligência Artificial
+
+O GDOCS é um marco no desenvolvimento de software, pois foi:
+
+•
+100% Projetado e Desenvolvido por IA: Desde a concepção da arquitetura até a implementação do banco de dados, funções de backend e frontend, todo o processo foi guiado e executado por inteligência artificial, operada por mim via prompts.
+
+•
+Tempo Recorde de Desenvolvimento: A construção completa do sistema foi realizada em menos de 8 horas, demonstrando a eficiência e a capacidade da IA em acelerar drasticamente o ciclo de vida do desenvolvimento de software.
+
+Benefícios para o Empreiteiro (Marceneiro)
+
+Com o GDOCS, o marceneiro não apenas otimiza seu tempo, mas também aumenta sua competitividade:
+
+•
+Economia de Tempo Significativa: Estima-se que o GDOCS pode reduzir o tempo de elaboração de orçamentos em até 70%, liberando o marceneiro para focar na produção e no atendimento ao cliente.
+
+•
+Profissionalismo Aprimorado: Orçamentos claros e bem apresentados em PDF elevam a percepção de valor e profissionalismo junto aos clientes.
+
+•
+Redução de Erros: A automação dos cálculos minimiza a ocorrência de erros, garantindo propostas mais precisas e confiáveis.
+
+•
+Validação Rápida de Projetos: A agilidade no desenvolvimento permite que novas ideias e funcionalidades sejam implementadas e testadas rapidamente, mantendo o negócio sempre à frente.
+
+Tecnologias Utilizadas
+
+Este projeto foi construído com:
+
+•
+Vite
+
+•
+TypeScript
+
+•
+React
+
+•
+shadcn-ui
+
+•
+Tailwind CSS
+
+Como Editar o Código
+
+Existem diversas maneiras de interagir e modificar o código desta aplicação:
+
+Usando Lovable
+
+Basta visitar o Projeto Lovable e começar a interagir com a IA. As alterações feitas via Lovable serão automaticamente commitadas neste repositório.
+
+Usando sua IDE Preferida
+
+Se você prefere trabalhar localmente com sua própria IDE, pode clonar este repositório e enviar suas alterações. As modificações enviadas também serão refletidas no Lovable. O único requisito é ter o Node.js e o npm instalados (recomendamos a instalação via nvm).
+
+Siga estes passos:
+
+1.  Clone o repositório:
+
+Bash
+
 git clone <YOUR_GIT_URL>
 
-# Step 2: Navigate to the project directory.
+2.  Navegue até o diretório do projeto:
+
+Bash
+
 cd <YOUR_PROJECT_NAME>
 
-# Step 3: Install the necessary dependencies.
+3.  Instale as dependências necessárias:
+
+Bash
+
 npm i
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
+4.  Inicie o servidor de desenvolvimento:
+
+Bash
+
 npm run dev
-```
 
-**Edit a file directly in GitHub**
+Editando um Arquivo Diretamente no GitHub
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+1.  Navegue até o(s) arquivo(s) desejado(s).
 
-**Use GitHub Codespaces**
+2.  Clique no botão "Editar" (ícone de lápis) no canto superior direito da visualização do arquivo.
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+3.  Faça suas alterações e commit as modificações.
 
-## What technologies are used for this project?
+Usando GitHub Codespaces
 
-This project is built with:
+1.  Navegue até a página principal do seu repositório.
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+2.  Clique no botão "Code" (botão verde) próximo ao canto superior direito.
 
-## How can I deploy this project?
+3.  Selecione a aba "Codespaces".
 
-Simply open [Lovable](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and click on Share -> Publish.
+4.  Clique em "New codespace" para iniciar um novo ambiente Codespace.
 
-## Can I connect a custom domain to my Lovable project?
+5.  Edite os arquivos diretamente no Codespace e commit e envie suas alterações quando terminar.
 
-Yes, you can!
+Como Implantar Este Projeto
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+Basta abrir o Lovable e clicar em Share -> Publish.
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+Conectar um Domínio Personalizado
+
+Sim, você pode! Para conectar um domínio, navegue até Project > Settings > Domains e clique em Connect Domain. Leia mais aqui: Configurando um domínio personalizado.
