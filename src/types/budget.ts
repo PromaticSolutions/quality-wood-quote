@@ -22,6 +22,11 @@ export interface Budget {
   architectName: string;
   deliveryDays: number;
   paymentTerms: string;
+  clientAddress?: string;
+  clientNeighborhood?: string;
+  clientCity?: string;
+  clientState?: string;
+  generalObservations?: string;
   rooms: Room[];
   customTotal?: number;
   status: 'draft' | 'finalized' | 'sent';

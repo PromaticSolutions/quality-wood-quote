@@ -17,10 +17,15 @@ export type Database = {
       budgets: {
         Row: {
           architect_name: string | null
+          client_address: string | null
+          client_city: string | null
           client_name: string | null
+          client_neighborhood: string | null
+          client_state: string | null
           created_at: string
           custom_total: number | null
           delivery_days: number | null
+          general_observations: string | null
           id: string
           payment_terms: string | null
           status: string | null
@@ -29,10 +34,15 @@ export type Database = {
         }
         Insert: {
           architect_name?: string | null
+          client_address?: string | null
+          client_city?: string | null
           client_name?: string | null
+          client_neighborhood?: string | null
+          client_state?: string | null
           created_at?: string
           custom_total?: number | null
           delivery_days?: number | null
+          general_observations?: string | null
           id?: string
           payment_terms?: string | null
           status?: string | null
@@ -41,10 +51,15 @@ export type Database = {
         }
         Update: {
           architect_name?: string | null
+          client_address?: string | null
+          client_city?: string | null
           client_name?: string | null
+          client_neighborhood?: string | null
+          client_state?: string | null
           created_at?: string
           custom_total?: number | null
           delivery_days?: number | null
+          general_observations?: string | null
           id?: string
           payment_terms?: string | null
           status?: string | null
