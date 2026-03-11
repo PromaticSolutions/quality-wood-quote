@@ -197,13 +197,38 @@ export default function BudgetEditor() {
               <Label className="text-xs font-semibold uppercase text-muted-foreground">Arquiteta</Label>
               <Input value={budget.architectName} onChange={e => updateField('architectName', e.target.value)} placeholder="Nome da arquiteta" />
             </div>
+            <div className="grid gap-1.5 sm:col-span-2">
+              <Label className="text-xs font-semibold uppercase text-muted-foreground">Endereço (Logradouro e Número)</Label>
+              <Input value={budget.clientAddress || ''} onChange={e => updateField('clientAddress', e.target.value)} placeholder="Ex: Rua das Flores, 123" />
+            </div>
+            <div className="grid gap-1.5">
+              <Label className="text-xs font-semibold uppercase text-muted-foreground">Bairro</Label>
+              <Input value={budget.clientNeighborhood || ''} onChange={e => updateField('clientNeighborhood', e.target.value)} placeholder="Ex: Centro" />
+            </div>
+            <div className="grid gap-1.5">
+              <Label className="text-xs font-semibold uppercase text-muted-foreground">Cidade</Label>
+              <Input value={budget.clientCity || ''} onChange={e => updateField('clientCity', e.target.value)} placeholder="Ex: São Paulo" />
+            </div>
+            <div className="grid gap-1.5">
+              <Label className="text-xs font-semibold uppercase text-muted-foreground">Estado</Label>
+              <Input value={budget.clientState || ''} onChange={e => updateField('clientState', e.target.value)} placeholder="Ex: SP" maxLength={2} />
+            </div>
             <div className="grid gap-1.5">
               <Label className="text-xs font-semibold uppercase text-muted-foreground">Prazo (dias úteis)</Label>
               <Input type="number" value={budget.deliveryDays} onChange={e => updateField('deliveryDays', Number(e.target.value))} />
             </div>
-            <div className="grid gap-1.5">
+            <div className="grid gap-1.5 sm:col-span-2">
               <Label className="text-xs font-semibold uppercase text-muted-foreground">Forma de Pagamento</Label>
               <Input value={budget.paymentTerms} onChange={e => updateField('paymentTerms', e.target.value)} placeholder="Ex: 50% entrada + 6x cartão" />
+            </div>
+            <div className="grid gap-1.5 sm:col-span-2">
+              <Label className="text-xs font-semibold uppercase text-muted-foreground">Observações Gerais (opcional)</Label>
+              <Textarea
+                value={budget.generalObservations || ''}
+                onChange={e => updateField('generalObservations', e.target.value)}
+                placeholder="Ex: Todos os armários superiores serão na cor branca."
+                rows={3}
+              />
             </div>
           </div>
         </CardContent>
