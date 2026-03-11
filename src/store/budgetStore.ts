@@ -8,6 +8,11 @@ function mapBudgetRow(row: any, rooms: Room[]): Budget {
     architectName: row.architect_name || '',
     deliveryDays: row.delivery_days || 30,
     paymentTerms: row.payment_terms || '',
+    clientAddress: row.client_address || undefined,
+    clientNeighborhood: row.client_neighborhood || undefined,
+    clientCity: row.client_city || undefined,
+    clientState: row.client_state || undefined,
+    generalObservations: row.general_observations || undefined,
     customTotal: row.custom_total ? Number(row.custom_total) : undefined,
     status: row.status || 'draft',
     createdAt: row.created_at,
@@ -124,6 +129,11 @@ export async function updateBudgetInfo(id: string, data: Partial<Budget>): Promi
   if (data.architectName !== undefined) updates.architect_name = data.architectName;
   if (data.deliveryDays !== undefined) updates.delivery_days = data.deliveryDays;
   if (data.paymentTerms !== undefined) updates.payment_terms = data.paymentTerms;
+  if (data.clientAddress !== undefined) updates.client_address = data.clientAddress || null;
+  if (data.clientNeighborhood !== undefined) updates.client_neighborhood = data.clientNeighborhood || null;
+  if (data.clientCity !== undefined) updates.client_city = data.clientCity || null;
+  if (data.clientState !== undefined) updates.client_state = data.clientState || null;
+  if (data.generalObservations !== undefined) updates.general_observations = data.generalObservations || null;
   if (data.customTotal !== undefined) updates.custom_total = data.customTotal;
   else if (data.customTotal === undefined && 'customTotal' in data) updates.custom_total = null;
   if (data.status !== undefined) updates.status = data.status;
