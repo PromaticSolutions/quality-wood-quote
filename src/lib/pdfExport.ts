@@ -102,15 +102,17 @@ export async function generateBudgetPDF(budget: Budget) {
     doc.text(cityState, col1, addrY);
   }
 
-  // Architect (col2)
-  doc.setFontSize(7);
-  doc.setFont('helvetica', 'bold');
-  doc.setTextColor(...colors.textLight);
-  doc.text('ARQUITETA', col2, y);
-  doc.setFont('helvetica', 'normal');
-  doc.setFontSize(9);
-  doc.setTextColor(...colors.text);
-  doc.text(budget.architectName || '-', col2, y + 5);
+  // Architect (col2) — only if provided
+  if (budget.architectName && budget.architectName.trim()) {
+    doc.setFontSize(7);
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(...colors.textLight);
+    doc.text('ARQUITETA(O)', col2, y);
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(9);
+    doc.setTextColor(...colors.text);
+    doc.text(budget.architectName, col2, y + 5);
+  }
 
   // Delivery + Payment (col2 lower)
   doc.setFontSize(7);
