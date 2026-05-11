@@ -112,6 +112,42 @@ export type Database = {
           },
         ]
       }
+      projects: {
+        Row: {
+          budget_id: string | null
+          created_at: string
+          description: string | null
+          file_path: string
+          file_size: number
+          id: string
+          name: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          budget_id?: string | null
+          created_at?: string
+          description?: string | null
+          file_path: string
+          file_size?: number
+          id?: string
+          name: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          budget_id?: string | null
+          created_at?: string
+          description?: string | null
+          file_path?: string
+          file_size?: number
+          id?: string
+          name?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       rooms: {
         Row: {
           budget_id: string
