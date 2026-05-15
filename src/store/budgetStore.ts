@@ -4,6 +4,7 @@ import { Budget, Room, BudgetItem } from '@/types/budget';
 function mapBudgetRow(row: any, rooms: Room[]): Budget {
   return {
     id: row.id,
+    clientId: row.client_id || undefined,
     clientName: row.client_name || '',
     architectName: row.architect_name || '',
     deliveryDays: row.delivery_days || 30,
@@ -113,6 +114,7 @@ export async function createBudget(data: Partial<Budget>): Promise<Budget> {
 
   const { data: row, error } = await supabase.from('budgets').insert({
     user_id: user.id,
+    client_id: data.clientId || null,
     client_name: data.clientName || '',
     architect_name: data.architectName || '',
     delivery_days: data.deliveryDays || 30,
@@ -125,6 +127,7 @@ export async function createBudget(data: Partial<Budget>): Promise<Budget> {
 
 export async function updateBudgetInfo(id: string, data: Partial<Budget>): Promise<void> {
   const updates: Record<string, any> = {};
+  if (data.clientId !== undefined) updates.client_id = data.clientId || null;
   if (data.clientName !== undefined) updates.client_name = data.clientName;
   if (data.architectName !== undefined) updates.architect_name = data.architectName;
   if (data.deliveryDays !== undefined) updates.delivery_days = data.deliveryDays;
