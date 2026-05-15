@@ -103,15 +103,20 @@ export default function Dashboard() {
 
             <Card>
               <CardHeader>
-                <CardTitle className="text-base">Status</CardTitle>
+                <CardTitle className="text-base flex items-center gap-2"><CalendarClock className="h-4 w-4" /> Próximos compromissos</CardTitle>
               </CardHeader>
-              <CardContent className="space-y-3">
-                {(['draft', 'finalized', 'sent'] as const).map(s => (
-                  <div key={s} className="flex items-center justify-between">
-                    <Badge className={statusColors[s]}>{statusLabels[s]}</Badge>
-                    <span className="font-semibold">{byStatus[s] || 0}</span>
-                  </div>
-                ))}
+              <CardContent className="space-y-2">
+                {upcoming.length === 0 ? (
+                  <p className="py-6 text-center text-sm text-muted-foreground">Nenhum evento</p>
+                ) : upcoming.map(ev => {
+                  const soon = new Date(ev.startsAt).getTime() - now <= 3 * 86400000;
+                  return (
+                    <div key={ev.id} onClick={() => navigate('/agenda')} className={cn('cursor-pointer rounded-md border p-2 text-sm hover:bg-muted/40', soon && 'border-destructive/50 bg-destructive/5')}>
+                      <p className="truncate font-medium">{ev.title}</p>
+                      <p className="text-xs text-muted-foreground">{new Date(ev.startsAt).toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' })}</p>
+                    </div>
+                  );
+                })}
               </CardContent>
             </Card>
           </div>
