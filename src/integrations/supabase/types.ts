@@ -19,6 +19,7 @@ export type Database = {
           architect_name: string | null
           client_address: string | null
           client_city: string | null
+          client_id: string | null
           client_name: string | null
           client_neighborhood: string | null
           client_state: string | null
@@ -36,6 +37,7 @@ export type Database = {
           architect_name?: string | null
           client_address?: string | null
           client_city?: string | null
+          client_id?: string | null
           client_name?: string | null
           client_neighborhood?: string | null
           client_state?: string | null
@@ -53,6 +55,7 @@ export type Database = {
           architect_name?: string | null
           client_address?: string | null
           client_city?: string | null
+          client_id?: string | null
           client_name?: string | null
           client_neighborhood?: string | null
           client_state?: string | null
@@ -63,6 +66,102 @@ export type Database = {
           id?: string
           payment_terms?: string | null
           status?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      clients: {
+        Row: {
+          address: string | null
+          cep: string | null
+          city: string | null
+          complement: string | null
+          created_at: string
+          document: string | null
+          email: string | null
+          id: string
+          name: string
+          neighborhood: string | null
+          notes: string | null
+          number: string | null
+          phone: string | null
+          state: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          address?: string | null
+          cep?: string | null
+          city?: string | null
+          complement?: string | null
+          created_at?: string
+          document?: string | null
+          email?: string | null
+          id?: string
+          name: string
+          neighborhood?: string | null
+          notes?: string | null
+          number?: string | null
+          phone?: string | null
+          state?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          address?: string | null
+          cep?: string | null
+          city?: string | null
+          complement?: string | null
+          created_at?: string
+          document?: string | null
+          email?: string | null
+          id?: string
+          name?: string
+          neighborhood?: string | null
+          notes?: string | null
+          number?: string | null
+          phone?: string | null
+          state?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      events: {
+        Row: {
+          client_id: string | null
+          created_at: string
+          ends_at: string | null
+          id: string
+          notes: string | null
+          starts_at: string
+          title: string
+          type: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          client_id?: string | null
+          created_at?: string
+          ends_at?: string | null
+          id?: string
+          notes?: string | null
+          starts_at: string
+          title: string
+          type?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          client_id?: string | null
+          created_at?: string
+          ends_at?: string | null
+          id?: string
+          notes?: string | null
+          starts_at?: string
+          title?: string
+          type?: string
           updated_at?: string
           user_id?: string
         }
@@ -111,6 +210,45 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      materials: {
+        Row: {
+          category: string
+          code: string | null
+          cost_price: number
+          created_at: string
+          description: string | null
+          id: string
+          name: string
+          unit: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          category?: string
+          code?: string | null
+          cost_price?: number
+          created_at?: string
+          description?: string | null
+          id?: string
+          name: string
+          unit?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          category?: string
+          code?: string | null
+          cost_price?: number
+          created_at?: string
+          description?: string | null
+          id?: string
+          name?: string
+          unit?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
       }
       projects: {
         Row: {

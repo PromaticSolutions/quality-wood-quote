@@ -15,6 +15,7 @@ import {
 import { Budget, Room, BudgetItem, calculateRoomSubtotal, calculateBudgetTotal, formatCurrency } from '@/types/budget';
 import { generateBudgetPDF } from '@/lib/pdfExport';
 import { toast } from 'sonner';
+import ClientSelector from '@/components/ClientSelector';
 
 export default function BudgetEditor() {
   const { id } = useParams<{ id: string }>();
@@ -189,35 +190,29 @@ export default function BudgetEditor() {
         </CardHeader>
         <CardContent>
           <div className="grid gap-4 sm:grid-cols-2">
-            <div className="grid gap-1.5">
-              <Label className="text-xs font-semibold uppercase text-muted-foreground">Cliente</Label>
-              <Input value={budget.clientName} onChange={e => updateField('clientName', e.target.value)} placeholder="Nome do cliente" />
-            </div>
-            <div className="grid gap-1.5">
-              <Label className="text-xs font-semibold uppercase text-muted-foreground">Arquiteta</Label>
-              <Input value={budget.architectName} onChange={e => updateField('architectName', e.target.value)} placeholder="Nome da arquiteta" />
-            </div>
             <div className="grid gap-1.5 sm:col-span-2">
-              <Label className="text-xs font-semibold uppercase text-muted-foreground">Endereço (Logradouro e Número)</Label>
-              <Input value={budget.clientAddress || ''} onChange={e => updateField('clientAddress', e.target.value)} placeholder="Ex: Rua das Flores, 123" />
-            </div>
-            <div className="grid gap-1.5">
-              <Label className="text-xs font-semibold uppercase text-muted-foreground">Bairro</Label>
-              <Input value={budget.clientNeighborhood || ''} onChange={e => updateField('clientNeighborhood', e.target.value)} placeholder="Ex: Centro" />
-            </div>
-            <div className="grid gap-1.5">
-              <Label className="text-xs font-semibold uppercase text-muted-foreground">Cidade</Label>
-              <Input value={budget.clientCity || ''} onChange={e => updateField('clientCity', e.target.value)} placeholder="Ex: São Paulo" />
-            </div>
-            <div className="grid gap-1.5">
-              <Label className="text-xs font-semibold uppercase text-muted-foreground">Estado</Label>
-              <Input value={budget.clientState || ''} onChange={e => updateField('clientState', e.target.value)} placeholder="Ex: SP" maxLength={2} />
+              <Label className="text-xs font-semibold uppercase text-muted-foreground">Cliente</Label>
+              <ClientSelector
+                value={budget.clientId}
+                onChange={async (clientId, client) => {
+                  const updates: Partial<Budget> = {
+                    clientId,
+                    clientName: client?.name || '',
+                    clientAddress: client?.address && client?.number ? `${client.address}, ${client.number}` : (client?.address || ''),
+                    clientNeighborhood: client?.neighborhood || '',
+                    clientCity: client?.city || '',
+                    clientState: client?.state || '',
+                  };
+                  setBudget({ ...budget!, ...updates } as Budget);
+                  await updateBudgetInfo(budget!.id, updates);
+                }}
+              />
             </div>
             <div className="grid gap-1.5">
               <Label className="text-xs font-semibold uppercase text-muted-foreground">Prazo (dias úteis)</Label>
               <Input type="number" value={budget.deliveryDays} onChange={e => updateField('deliveryDays', Number(e.target.value))} />
             </div>
-            <div className="grid gap-1.5 sm:col-span-2">
+            <div className="grid gap-1.5">
               <Label className="text-xs font-semibold uppercase text-muted-foreground">Forma de Pagamento</Label>
               <Input value={budget.paymentTerms} onChange={e => updateField('paymentTerms', e.target.value)} placeholder="Ex: 50% entrada + 6x cartão" />
             </div>

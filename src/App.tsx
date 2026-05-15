@@ -11,6 +11,10 @@ import Dashboard from "./pages/Dashboard";
 import Budgets from "./pages/Budgets";
 import Projects from "./pages/Projects";
 import BudgetEditor from "./pages/BudgetEditor";
+import Clients from "./pages/Clients";
+import Materials from "./pages/Materials";
+import Agenda from "./pages/Agenda";
+import ComingSoon from "./pages/ComingSoon";
 import Login from "./pages/Login";
 import NotFound from "./pages/NotFound";
 
@@ -51,8 +55,12 @@ const App = () => (
             <Route path="/login" element={<AuthRoute><Login /></AuthRoute>} />
             <Route path="/" element={<ProtectedShell><Dashboard /></ProtectedShell>} />
             <Route path="/orcamentos" element={<ProtectedShell><Budgets /></ProtectedShell>} />
+            <Route path="/clientes" element={<ProtectedShell><Clients /></ProtectedShell>} />
+            <Route path="/materiais" element={<ProtectedShell><Materials /></ProtectedShell>} />
+            <Route path="/agenda" element={<ProtectedShell><Agenda /></ProtectedShell>} />
             <Route path="/projetos" element={<ProtectedShell><Projects /></ProtectedShell>} />
             <Route path="/budget/:id" element={<ProtectedShell><BudgetEditor /></ProtectedShell>} />
+            <Route path="/em-breve/:modulo" element={<ProtectedShell><ComingSoon /></ProtectedShell>} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>

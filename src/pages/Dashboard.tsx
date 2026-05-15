@@ -1,12 +1,14 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { FileText, FolderOpen, DollarSign, TrendingUp, Plus, Calendar } from 'lucide-react';
+import { FileText, FolderOpen, DollarSign, TrendingUp, Plus, Calendar, CalendarClock } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { getAllBudgets } from '@/store/budgetStore';
 import { getAllProjects, Project } from '@/store/projectStore';
+import { getAllEvents, AgendaEvent } from '@/store/eventStore';
 import { Budget, calculateBudgetTotal, formatCurrency } from '@/types/budget';
+import { cn } from '@/lib/utils';
 
 const statusLabels: Record<string, string> = { draft: 'Rascunho', finalized: 'Finalizado', sent: 'Enviado' };
 const statusColors: Record<string, string> = {
@@ -19,14 +21,16 @@ export default function Dashboard() {
   const navigate = useNavigate();
   const [budgets, setBudgets] = useState<Budget[]>([]);
   const [projects, setProjects] = useState<Project[]>([]);
+  const [events, setEvents] = useState<AgendaEvent[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     (async () => {
       try {
-        const [b, p] = await Promise.all([getAllBudgets(), getAllProjects()]);
+        const [b, p, e] = await Promise.all([getAllBudgets(), getAllProjects(), getAllEvents()]);
         setBudgets(b);
         setProjects(p);
+        setEvents(e);
       } finally {
         setLoading(false);
       }
@@ -39,6 +43,8 @@ export default function Dashboard() {
     return acc;
   }, {});
   const recent = budgets.slice(0, 5);
+  const now = Date.now();
+  const upcoming = events.filter(e => new Date(e.startsAt).getTime() >= now).slice(0, 5);
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6">
@@ -97,15 +103,20 @@ export default function Dashboard() {
 
             <Card>
               <CardHeader>
-                <CardTitle className="text-base">Status</CardTitle>
+                <CardTitle className="text-base flex items-center gap-2"><CalendarClock className="h-4 w-4" /> Próximos compromissos</CardTitle>
               </CardHeader>
-              <CardContent className="space-y-3">
-                {(['draft', 'finalized', 'sent'] as const).map(s => (
-                  <div key={s} className="flex items-center justify-between">
-                    <Badge className={statusColors[s]}>{statusLabels[s]}</Badge>
-                    <span className="font-semibold">{byStatus[s] || 0}</span>
-                  </div>
-                ))}
+              <CardContent className="space-y-2">
+                {upcoming.length === 0 ? (
+                  <p className="py-6 text-center text-sm text-muted-foreground">Nenhum evento</p>
+                ) : upcoming.map(ev => {
+                  const soon = new Date(ev.startsAt).getTime() - now <= 3 * 86400000;
+                  return (
+                    <div key={ev.id} onClick={() => navigate('/agenda')} className={cn('cursor-pointer rounded-md border p-2 text-sm hover:bg-muted/40', soon && 'border-destructive/50 bg-destructive/5')}>
+                      <p className="truncate font-medium">{ev.title}</p>
+                      <p className="text-xs text-muted-foreground">{new Date(ev.startsAt).toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' })}</p>
+                    </div>
+                  );
+                })}
               </CardContent>
             </Card>
           </div>
