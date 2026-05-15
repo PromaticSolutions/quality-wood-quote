@@ -1,8 +1,24 @@
 import jsPDF from 'jspdf';
 import { Budget, Room, calculateRoomSubtotal, calculateBudgetTotal, formatCurrency } from '@/types/budget';
 import logoImg from '@/assets/logo-marcenaria.png';
+import { getClient } from '@/store/clientStore';
 
-export async function generateBudgetPDF(budget: Budget) {
+export async function generateBudgetPDF(budgetInput: Budget) {
+  // Enrich with up-to-date linked client (if any)
+  let budget = budgetInput;
+  if (budgetInput.clientId) {
+    const c = await getClient(budgetInput.clientId);
+    if (c) {
+      budget = {
+        ...budgetInput,
+        clientName: c.name,
+        clientAddress: c.address && c.number ? `${c.address}, ${c.number}` : (c.address || budgetInput.clientAddress),
+        clientNeighborhood: c.neighborhood || budgetInput.clientNeighborhood,
+        clientCity: c.city || budgetInput.clientCity,
+        clientState: c.state || budgetInput.clientState,
+      };
+    }
+  }
   const doc = new jsPDF('p', 'mm', 'a4');
   const pageWidth = 210;
   const margin = 15;
