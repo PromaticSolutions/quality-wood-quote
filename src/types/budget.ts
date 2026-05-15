@@ -18,6 +18,7 @@ export interface Room {
 
 export interface Budget {
   id: string;
+  clientId?: string;
   clientName: string;
   architectName: string;
   deliveryDays: number;
