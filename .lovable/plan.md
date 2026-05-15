@@ -1,59 +1,62 @@
-## Objetivo
-Reorganizar o sistema com menu lateral e adicionar gestão de projetos (PDFs) vinculados a orçamentos.
+# Plano de Expansão do Sistema
 
-## Nova estrutura de navegação
+Vou implementar os módulos solicitados na ordem de prioridade indicada. Resumo abaixo o que será criado/alterado.
 
-Menu lateral fixo (colapsável) com 3 itens:
-- **Dashboard** (`/`) — visão geral com estatísticas
-- **Orçamentos** (`/orcamentos`) — tela atual de listagem
-- **Projetos** (`/projetos`) — nova tela de gestão de PDFs
+## 1. Cadastro de Clientes
+- Nova tabela `clients` no backend (nome, CPF/CNPJ, telefone, e-mail, CEP, endereço, número, complemento, bairro, cidade, estado, observações), protegida por RLS por usuário.
+- Página `/clientes` com listagem, busca, e formulário de cadastro/edição.
+- Busca automática de endereço pelo CEP usando ViaCEP (API pública e gratuita).
+- Validação de campos com Zod.
 
-O header superior atual será mantido (logo + logout) e o trigger do sidebar fica nele.
+## 2. Ajustes no Orçamento
+- Remover do cabeçalho do orçamento os campos de dados do cliente (nome, endereço, etc.) e o campo arquiteto(a).
+- Substituir por um **seletor de cliente** (dropdown com busca) listando clientes cadastrados, mostrando nome e telefone.
+- Manter apenas **Forma de pagamento**, **Prazo de entrega** e **Observações gerais** no cabeçalho.
+- Adicionar coluna `client_id` na tabela `budgets`.
+- O PDF gerado continuará exibindo os dados completos do cliente, mas agora puxados do cadastro vinculado.
 
-## 1. Dashboard (nova tela inicial)
+## 3. Cadastro de Materiais
+- Nova tabela `materials` (nome, unidade, preço de custo, categoria, código, descrição), com RLS.
+- Página `/materiais` com:
+  - **Cadastro manual**: formulário com nome, unidade (m², m linear, unidade, kg), preço de custo, categoria (chapa, ferragem, vidro, perfil, outros).
+  - **Importação via XML de NF-e**: upload do arquivo XML, parser no frontend extrai os itens (descrição, unidade, quantidade, valor unitário), exibe tabela de pré-visualização para o usuário confirmar quais itens importar antes de salvar.
+- Listagem com busca e filtro por categoria.
 
-Cards de métricas:
-- Total de orçamentos
-- Valor total (soma de todos os orçamentos)
-- Orçamentos por status (rascunho / finalizado / enviado)
-- Total de projetos anexados
-- Lista dos 5 orçamentos mais recentes (atalho)
+## 4. Agenda
+- Nova tabela `events` (título, tipo, client_id, data/hora início, data/hora fim, observações).
+- Página `/agenda` com:
+  - Visualização **mensal** e **semanal** (calendário customizado em React, sem dependências pesadas).
+  - Cadastro/edição de eventos via modal: título, tipo (entrega, instalação, medição, reunião), cliente vinculado, data e hora, observações.
+  - Destaque visual (cor de alerta) para eventos nos próximos 3 dias.
+- No **Dashboard**: novo painel "Próximos compromissos" com os eventos mais próximos.
 
-## 2. Orçamentos
-A tela de listagem atual move para `/orcamentos`. Sem mudanças de funcionalidade.
-
-## 3. Projetos (nova)
-
-Tela para upload e organização de arquivos PDF de projetos (plantas, referências, etc).
-
-Funcionalidades:
-- Upload de PDF (drag & drop + botão)
-- Lista/grid de projetos com nome, data, tamanho do arquivo, orçamento vinculado
-- Vincular um projeto a um orçamento existente (select)
-- Visualizar PDF (abre em nova aba)
-- Baixar PDF
-- Excluir projeto
-- Filtro/busca por nome
-- Filtrar por orçamento vinculado
-
-**Importante:** projetos NÃO entram no PDF gerado do orçamento. São apenas organização interna.
-
-Na tela do orçamento (BudgetEditor), adicionar uma seção pequena listando os projetos vinculados, com botão "Anexar Projeto" para vincular rápido.
+## 5. Cards "Em breve"
+- Adicionar 3 itens no menu lateral, desabilitados visualmente e com badge "Em breve":
+  - Fornecedores
+  - Conexão com E-mail
+  - Conexão com WhatsApp
+- Ao clicar, navegam para uma página simples `/em-breve/:modulo` com mensagem de "Em desenvolvimento".
 
 ## Detalhes técnicos
 
-**Backend (migration):**
-- Tabela `projects`: `id`, `user_id`, `name`, `description`, `file_path`, `file_size`, `budget_id` (nullable, FK lógica), `created_at`, `updated_at`
-- RLS: usuário só vê/edita os próprios
-- Bucket de Storage privado `projects` com policies por `user_id` (pasta `{user_id}/{file}`)
+**Backend (Lovable Cloud):**
+- Migração criando 3 tabelas: `clients`, `materials`, `events`.
+- Adição de coluna `client_id uuid` em `budgets` (FK lógica para `clients`).
+- RLS em todas: cada usuário só vê seus próprios registros.
+- Triggers `updated_at` reutilizando `update_updated_at_column()` existente.
 
 **Frontend:**
-- `src/components/AppSidebar.tsx` — menu lateral com NavLink ativo
-- `SidebarProvider` envolve as rotas protegidas em `App.tsx`
-- `src/pages/Dashboard.tsx` (nova) — métricas
-- Renomear atual `Dashboard.tsx` para `Budgets.tsx` (rota `/orcamentos`)
-- `src/pages/Projects.tsx` (nova) — CRUD de projetos
-- `src/store/projectStore.ts` — funções de upload/list/delete/link
-- Adicionar seção "Projetos vinculados" no `BudgetEditor`
+- Novas stores Zustand: `clientStore.ts`, `materialStore.ts`, `eventStore.ts`.
+- Novas páginas: `Clients.tsx`, `Materials.tsx`, `Agenda.tsx`, `ComingSoon.tsx`.
+- Atualização do `AppSidebar.tsx` com novos itens (ativos e "em breve").
+- Atualização de `BudgetEditor.tsx`: remover cabeçalho de cliente, adicionar seletor (`Combobox` shadcn).
+- Atualização de `pdfExport.ts`: buscar dados do cliente vinculado para imprimir no PDF.
+- Atualização do `Dashboard.tsx`: painel de próximos compromissos.
 
-**Stack:** mantém React + Tailwind + shadcn sidebar + Supabase Storage.
+**XML NF-e:**
+- Parser no frontend usando `DOMParser` nativo (sem novas dependências).
+- Lê tags `<det>`, `<prod>` (xProd, uCom, qCom, vUnCom, etc.) do padrão NF-e brasileiro.
+
+## Não incluso
+- Os módulos "Em breve" (Fornecedores, E-mail, WhatsApp) serão apenas placeholders.
+- O módulo de Projetos permanece exatamente como está.
