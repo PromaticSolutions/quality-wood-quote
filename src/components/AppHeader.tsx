@@ -1,33 +1,39 @@
-import { FileText, LogOut } from 'lucide-react';
+import { Bell } from 'lucide-react';
+import { useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { useAuth } from '@/contexts/AuthContext';
+import UserMenu from './UserMenu';
+
+const routeTitles: Record<string, string> = {
+  '/': 'Dashboard',
+  '/orcamentos': 'Orçamentos',
+  '/clientes': 'Clientes',
+  '/materiais': 'Materiais',
+  '/agenda': 'Agenda',
+  '/projetos': 'Projetos',
+  '/configuracoes': 'Configurações',
+};
 
 export default function AppHeader({ leading }: { leading?: React.ReactNode }) {
-  const { user, signOut } = useAuth();
-  const today = new Date().toLocaleDateString('pt-BR', {
-    weekday: 'long', year: 'numeric', month: 'long', day: 'numeric',
-  });
+  const { pathname } = useLocation();
+  let title = routeTitles[pathname];
+  if (!title) {
+    if (pathname.startsWith('/budget/')) title = 'Editor de Orçamento';
+    else if (pathname.startsWith('/em-breve/')) title = 'Em breve';
+    else title = 'Marcenaria Quality';
+  }
 
   return (
-    <header className="sticky top-0 z-40 bg-primary text-primary-foreground shadow-md">
-      <div className="flex items-center justify-between px-4 py-3 sm:px-6">
-        <div className="flex items-center gap-3">
+    <header className="sticky top-0 z-40 h-14 border-b border-border bg-card shadow-sm">
+      <div className="flex h-full items-center justify-between gap-4 px-4 sm:px-6">
+        <div className="flex items-center gap-3 min-w-0">
           {leading}
-          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-accent">
-            <FileText className="h-5 w-5 text-accent-foreground" />
-          </div>
-          <div>
-            <h1 className="text-lg font-bold tracking-tight">Marcenaria Quality</h1>
-            <p className="text-xs opacity-80">Sistema de Orçamentos</p>
-          </div>
+          <h1 className="truncate text-base font-semibold text-foreground">{title}</h1>
         </div>
-        <div className="flex items-center gap-4">
-          <span className="hidden text-xs capitalize opacity-70 sm:block">{today}</span>
-          {user && (
-            <Button variant="ghost" size="sm" onClick={signOut} className="gap-1.5 text-primary-foreground hover:bg-primary-foreground/10">
-              <LogOut className="h-4 w-4" /> Sair
-            </Button>
-          )}
+        <div className="flex items-center gap-1">
+          <Button variant="ghost" size="icon" className="relative h-9 w-9 text-muted-foreground" aria-label="Notificações">
+            <Bell className="h-4 w-4" />
+          </Button>
+          <UserMenu />
         </div>
       </div>
     </header>
