@@ -250,6 +250,90 @@ export type Database = {
         }
         Relationships: []
       }
+      profiles: {
+        Row: {
+          address: string | null
+          avatar_url: string | null
+          cep: string | null
+          city: string | null
+          cnpj: string | null
+          company_name: string | null
+          complement: string | null
+          created_at: string
+          currency: string
+          date_format: string
+          default_budget_validity_days: number
+          full_name: string | null
+          id: string
+          instagram: string | null
+          legal_name: string | null
+          logo_url: string | null
+          neighborhood: string | null
+          number: string | null
+          phone: string | null
+          role_title: string | null
+          state: string | null
+          theme: string
+          updated_at: string
+          user_id: string
+          website: string | null
+        }
+        Insert: {
+          address?: string | null
+          avatar_url?: string | null
+          cep?: string | null
+          city?: string | null
+          cnpj?: string | null
+          company_name?: string | null
+          complement?: string | null
+          created_at?: string
+          currency?: string
+          date_format?: string
+          default_budget_validity_days?: number
+          full_name?: string | null
+          id?: string
+          instagram?: string | null
+          legal_name?: string | null
+          logo_url?: string | null
+          neighborhood?: string | null
+          number?: string | null
+          phone?: string | null
+          role_title?: string | null
+          state?: string | null
+          theme?: string
+          updated_at?: string
+          user_id: string
+          website?: string | null
+        }
+        Update: {
+          address?: string | null
+          avatar_url?: string | null
+          cep?: string | null
+          city?: string | null
+          cnpj?: string | null
+          company_name?: string | null
+          complement?: string | null
+          created_at?: string
+          currency?: string
+          date_format?: string
+          default_budget_validity_days?: number
+          full_name?: string | null
+          id?: string
+          instagram?: string | null
+          legal_name?: string | null
+          logo_url?: string | null
+          neighborhood?: string | null
+          number?: string | null
+          phone?: string | null
+          role_title?: string | null
+          state?: string | null
+          theme?: string
+          updated_at?: string
+          user_id?: string
+          website?: string | null
+        }
+        Relationships: []
+      }
       projects: {
         Row: {
           budget_id: string | null

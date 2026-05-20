@@ -1,62 +1,59 @@
-# Plano de Expansão do Sistema
+## Plano de implementação
 
-Vou implementar os módulos solicitados na ordem de prioridade indicada. Resumo abaixo o que será criado/alterado.
+### 1. Backend (migração)
 
-## 1. Cadastro de Clientes
-- Nova tabela `clients` no backend (nome, CPF/CNPJ, telefone, e-mail, CEP, endereço, número, complemento, bairro, cidade, estado, observações), protegida por RLS por usuário.
-- Página `/clientes` com listagem, busca, e formulário de cadastro/edição.
-- Busca automática de endereço pelo CEP usando ViaCEP (API pública e gratuita).
-- Validação de campos com Zod.
+Criar tabela `profiles` (1 por usuário) com:
+- **Perfil**: full_name, role_title, phone, avatar_url
+- **Empresa**: company_name, legal_name, cnpj, cep, address, number, complement, neighborhood, city, state, website, instagram, logo_url
+- **Preferências**: currency (default 'BRL'), date_format (default 'DD/MM/YYYY'), theme ('light'|'dark'|'system'), default_budget_validity_days (default 30)
+- RLS: cada usuário só vê/edita o próprio
+- Trigger `updated_at`
 
-## 2. Ajustes no Orçamento
-- Remover do cabeçalho do orçamento os campos de dados do cliente (nome, endereço, etc.) e o campo arquiteto(a).
-- Substituir por um **seletor de cliente** (dropdown com busca) listando clientes cadastrados, mostrando nome e telefone.
-- Manter apenas **Forma de pagamento**, **Prazo de entrega** e **Observações gerais** no cabeçalho.
-- Adicionar coluna `client_id` na tabela `budgets`.
-- O PDF gerado continuará exibindo os dados completos do cliente, mas agora puxados do cadastro vinculado.
+Criar bucket público `avatars` e bucket público `company-assets` (para logos) com políticas RLS por pasta `{user_id}/...`.
 
-## 3. Cadastro de Materiais
-- Nova tabela `materials` (nome, unidade, preço de custo, categoria, código, descrição), com RLS.
-- Página `/materiais` com:
-  - **Cadastro manual**: formulário com nome, unidade (m², m linear, unidade, kg), preço de custo, categoria (chapa, ferragem, vidro, perfil, outros).
-  - **Importação via XML de NF-e**: upload do arquivo XML, parser no frontend extrai os itens (descrição, unidade, quantidade, valor unitário), exibe tabela de pré-visualização para o usuário confirmar quais itens importar antes de salvar.
-- Listagem com busca e filtro por categoria.
+### 2. Página de Configurações (`/configuracoes`)
 
-## 4. Agenda
-- Nova tabela `events` (título, tipo, client_id, data/hora início, data/hora fim, observações).
-- Página `/agenda` com:
-  - Visualização **mensal** e **semanal** (calendário customizado em React, sem dependências pesadas).
-  - Cadastro/edição de eventos via modal: título, tipo (entrega, instalação, medição, reunião), cliente vinculado, data e hora, observações.
-  - Destaque visual (cor de alerta) para eventos nos próximos 3 dias.
-- No **Dashboard**: novo painel "Próximos compromissos" com os eventos mais próximos.
+Layout com abas verticais à esquerda:
+- **Perfil**: upload de foto (preview + remover), nome completo, empresa, cargo, telefone, e-mail (readonly + botão "Solicitar alteração" disabled com tooltip)
+- **Empresa**: razão social, CNPJ, endereço completo (busca ViaCEP), upload de logo, site, Instagram
+- **Segurança**: troca de senha (senha atual + nova + confirmação) com indicador visual de força; botão "Encerrar todas as sessões" (signOut global)
+- **Contas conectadas**: 3 cards (E-mail, WhatsApp, Google Agenda) com status "Em breve" e botão disabled + tooltip
+- **Preferências**: moeda, formato de data, tema (claro/escuro/sistema), validade padrão de orçamentos
+- **Plano e assinatura**: card estático com "Plano Profissional", próxima renovação, botão "Gerenciar plano" disabled
 
-## 5. Cards "Em breve"
-- Adicionar 3 itens no menu lateral, desabilitados visualmente e com badge "Em breve":
-  - Fornecedores
-  - Conexão com E-mail
-  - Conexão com WhatsApp
-- Ao clicar, navegam para uma página simples `/em-breve/:modulo` com mensagem de "Em desenvolvimento".
+Cada aba tem botão "Salvar alterações" com toast de feedback.
 
-## Detalhes técnicos
+Acesso: novo item na sidebar + menu dropdown no avatar do header.
 
-**Backend (Lovable Cloud):**
-- Migração criando 3 tabelas: `clients`, `materials`, `events`.
-- Adição de coluna `client_id uuid` em `budgets` (FK lógica para `clients`).
-- RLS em todas: cada usuário só vê seus próprios registros.
-- Triggers `updated_at` reutilizando `update_updated_at_column()` existente.
+### 3. PDF de orçamento
 
-**Frontend:**
-- Novas stores Zustand: `clientStore.ts`, `materialStore.ts`, `eventStore.ts`.
-- Novas páginas: `Clients.tsx`, `Materials.tsx`, `Agenda.tsx`, `ComingSoon.tsx`.
-- Atualização do `AppSidebar.tsx` com novos itens (ativos e "em breve").
-- Atualização de `BudgetEditor.tsx`: remover cabeçalho de cliente, adicionar seletor (`Combobox` shadcn).
-- Atualização de `pdfExport.ts`: buscar dados do cliente vinculado para imprimir no PDF.
-- Atualização do `Dashboard.tsx`: painel de próximos compromissos.
+Atualizar `pdfExport.ts` para usar `company_name`, `cnpj`, `phone` e `logo_url` do `profiles` quando preenchidos (fallback para os valores fixos atuais).
 
-**XML NF-e:**
-- Parser no frontend usando `DOMParser` nativo (sem novas dependências).
-- Lê tags `<det>`, `<prod>` (xProd, uCom, qCom, vUnCom, etc.) do padrão NF-e brasileiro.
+### 4. Redesign visual SAP/ERP
 
-## Não incluso
-- Os módulos "Em breve" (Fornecedores, E-mail, WhatsApp) serão apenas placeholders.
-- O módulo de Projetos permanece exatamente como está.
+**Tokens (`index.css` + `tailwind.config.ts`)**:
+- Paleta neutra: fundo `#F4F5F7`, cards brancos, bordas finas cinza
+- Sidebar: fundo azul-marinho escuro (`#1A2332`) com texto claro, highlight sutil no ativo
+- Primário: azul corporativo (`#0A6ED1` estilo SAP Fiori) substituindo o marrom atual
+- Acento removido (sem dourado)
+- Raio reduzido (4–6px)
+- Tipografia Inter (já em uso), hierarquia ajustada
+
+**Tema escuro**: ajustar variáveis para versão escura coerente, ativável via preferência.
+
+**Componentes**:
+- `AppSidebar`: tema escuro, ícones + labels, hover sutil
+- `AppHeader` → topbar fixa branca com sombra fina, nome do módulo ativo à esquerda, avatar dropdown + bell de notificações (placeholder) à direita
+- Tabelas (`Budgets`, `Clients`, `Materials`): cabeçalho cinza claro, linhas com border-bottom sutil, ações em ícones na última coluna
+- Formulários: labels acima, foco azul, mensagens inline
+- Badges de status: verde/amarelo/vermelho/cinza discretos
+- Skeleton loaders nas listas
+- Transições 200ms nos modais e dropdowns (já no shadcn)
+
+Funcionalidade preservada em 100%; apenas estilos e o novo módulo de configurações.
+
+### Arquivos principais
+
+- **Migração** nova
+- **Criados**: `src/pages/Settings.tsx`, `src/store/profileStore.ts`, `src/components/UserMenu.tsx`, `src/components/StatusBadge.tsx`
+- **Editados**: `src/index.css`, `tailwind.config.ts`, `src/App.tsx`, `src/components/AppHeader.tsx`, `src/components/AppSidebar.tsx`, `src/lib/pdfExport.ts`, páginas de listagem (estilo de tabela), `src/contexts/AuthContext.tsx` (theme application)

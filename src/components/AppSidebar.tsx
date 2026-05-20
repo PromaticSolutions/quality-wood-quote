@@ -1,18 +1,19 @@
-import { LayoutDashboard, FileText, FolderOpen, Users, Package, Calendar, Truck, Mail, MessageCircle } from 'lucide-react';
+import { LayoutDashboard, FileText, FolderOpen, Users, Package, Calendar, Truck, Mail, MessageCircle, Settings, Hammer } from 'lucide-react';
 import { NavLink, useLocation } from 'react-router-dom';
 import {
   Sidebar,
   SidebarContent,
+  SidebarFooter,
   SidebarGroup,
   SidebarGroupContent,
   SidebarGroupLabel,
+  SidebarHeader,
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
   useSidebar,
 } from '@/components/ui/sidebar';
 import { Badge } from '@/components/ui/badge';
-import { cn } from '@/lib/utils';
 
 const items = [
   { title: 'Dashboard', url: '/', icon: LayoutDashboard, exact: true },
@@ -39,16 +40,29 @@ export default function AppSidebar() {
 
   return (
     <Sidebar collapsible="icon">
+      <SidebarHeader className="border-b border-sidebar-border">
+        <div className="flex items-center gap-2 px-2 py-2">
+          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded bg-sidebar-primary text-sidebar-primary-foreground">
+            <Hammer className="h-4 w-4" />
+          </div>
+          {!collapsed && (
+            <div className="min-w-0">
+              <p className="truncate text-sm font-bold text-sidebar-foreground">Quality</p>
+              <p className="truncate text-[10px] text-sidebar-foreground/60">Marcenaria ERP</p>
+            </div>
+          )}
+        </div>
+      </SidebarHeader>
       <SidebarContent>
         <SidebarGroup>
-          <SidebarGroupLabel>Menu</SidebarGroupLabel>
+          {!collapsed && <SidebarGroupLabel className="text-sidebar-foreground/50">Menu</SidebarGroupLabel>}
           <SidebarGroupContent>
             <SidebarMenu>
               {items.map((item) => (
                 <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild isActive={isActive(item.url, item.exact)}>
+                  <SidebarMenuButton asChild isActive={isActive(item.url, item.exact)} tooltip={item.title}>
                     <NavLink to={item.url} end={item.exact} className="flex items-center gap-2">
-                      <item.icon className="h-4 w-4" />
+                      <item.icon className="h-4 w-4 shrink-0" />
                       {!collapsed && <span>{item.title}</span>}
                     </NavLink>
                   </SidebarMenuButton>
@@ -59,14 +73,14 @@ export default function AppSidebar() {
         </SidebarGroup>
 
         <SidebarGroup>
-          <SidebarGroupLabel>Em breve</SidebarGroupLabel>
+          {!collapsed && <SidebarGroupLabel className="text-sidebar-foreground/50">Integrações</SidebarGroupLabel>}
           <SidebarGroupContent>
             <SidebarMenu>
               {soonItems.map((item) => (
                 <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild isActive={isActive(item.url)}>
-                    <NavLink to={item.url} className={cn('flex items-center gap-2 opacity-60')}>
-                      <item.icon className="h-4 w-4" />
+                  <SidebarMenuButton asChild isActive={isActive(item.url)} tooltip={`${item.title} (em breve)`}>
+                    <NavLink to={item.url} className="flex items-center gap-2 opacity-70">
+                      <item.icon className="h-4 w-4 shrink-0" />
                       {!collapsed && (
                         <>
                           <span className="flex-1">{item.title}</span>
@@ -81,6 +95,18 @@ export default function AppSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
+      <SidebarFooter className="border-t border-sidebar-border">
+        <SidebarMenu>
+          <SidebarMenuItem>
+            <SidebarMenuButton asChild isActive={isActive('/configuracoes')} tooltip="Configurações">
+              <NavLink to="/configuracoes" className="flex items-center gap-2">
+                <Settings className="h-4 w-4 shrink-0" />
+                {!collapsed && <span>Configurações</span>}
+              </NavLink>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+        </SidebarMenu>
+      </SidebarFooter>
     </Sidebar>
   );
 }

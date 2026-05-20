@@ -2,8 +2,28 @@ import jsPDF from 'jspdf';
 import { Budget, Room, calculateRoomSubtotal, calculateBudgetTotal, formatCurrency } from '@/types/budget';
 import logoImg from '@/assets/logo-marcenaria.png';
 import { getClient } from '@/store/clientStore';
+import { getMyProfile } from '@/store/profileStore';
+
+async function loadImageAsDataURL(url: string): Promise<string | null> {
+  try {
+    const res = await fetch(url);
+    const blob = await res.blob();
+    return await new Promise((resolve) => {
+      const r = new FileReader();
+      r.onloadend = () => resolve(r.result as string);
+      r.onerror = () => resolve(null);
+      r.readAsDataURL(blob);
+    });
+  } catch { return null; }
+}
 
 export async function generateBudgetPDF(budgetInput: Budget) {
+  const profile = await getMyProfile();
+  const companyName = (profile?.companyName || 'Marcenaria Quality').toUpperCase();
+  const companyCNPJ = profile?.cnpj || '63.111.412/0001-19';
+  const companyPhone = profile?.phone || '(11) 91639-5199';
+  const companyOwner = profile?.fullName || 'Pablo Santos';
+  const customLogo = profile?.logoUrl ? await loadImageAsDataURL(profile.logoUrl) : null;
   // Enrich with up-to-date linked client (if any)
   let budget = budgetInput;
   if (budgetInput.clientId) {
@@ -55,7 +75,7 @@ export async function generateBudgetPDF(budgetInput: Budget) {
   const logoH = 18;
   const logoW = 18;
   try {
-    doc.addImage(logoImg, 'PNG', margin, y, logoW, logoH);
+    doc.addImage(customLogo || logoImg, customLogo ? undefined as any : 'PNG', margin, y, logoW, logoH);
   } catch {
     // Logo failed to load — skip gracefully
   }
@@ -64,11 +84,11 @@ export async function generateBudgetPDF(budgetInput: Budget) {
   doc.setFontSize(16);
   doc.setFont('helvetica', 'bold');
   doc.setTextColor(...colors.text);
-  doc.text('MARCENARIA QUALITY', textX, y + 7);
+  doc.text(companyName, textX, y + 7);
   doc.setFontSize(8);
   doc.setFont('helvetica', 'normal');
   doc.setTextColor(...colors.textLight);
-  doc.text('Orçamento de Projeto  •  CNPJ: 63.111.412/0001-19', textX, y + 13);
+  doc.text(`Orçamento de Projeto  •  CNPJ: ${companyCNPJ}`, textX, y + 13);
   doc.text(new Date().toLocaleDateString('pt-BR'), pageWidth - margin, y + 7, { align: 'right' });
 
   y += logoH + 6;
@@ -297,10 +317,10 @@ export async function generateBudgetPDF(budgetInput: Budget) {
   doc.setFontSize(7.5);
   doc.setFont('helvetica', 'bold');
   doc.setTextColor(...colors.text);
-  doc.text('Marcenaria Quality', margin, footerY);
+  doc.text(profile?.companyName || 'Marcenaria Quality', margin, footerY);
   doc.setFont('helvetica', 'normal');
   doc.setTextColor(...colors.textLight);
-  doc.text('CNPJ: 63.111.412/0001-19  •  Pablo Santos  •  (11) 91639-5199', margin, footerY + 4);
+  doc.text(`CNPJ: ${companyCNPJ}  •  ${companyOwner}  •  ${companyPhone}`, margin, footerY + 4);
 
   const fileName = `Orcamento_${budget.clientName?.replace(/\s+/g, '_') || 'novo'}_${new Date().toISOString().slice(0, 10)}.pdf`;
   doc.save(fileName);
