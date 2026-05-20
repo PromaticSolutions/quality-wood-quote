@@ -317,10 +317,10 @@ export async function generateBudgetPDF(budgetInput: Budget) {
   doc.setFontSize(7.5);
   doc.setFont('helvetica', 'bold');
   doc.setTextColor(...colors.text);
-  doc.text('Marcenaria Quality', margin, footerY);
+  doc.text(profile?.companyName || 'Marcenaria Quality', margin, footerY);
   doc.setFont('helvetica', 'normal');
   doc.setTextColor(...colors.textLight);
-  doc.text('CNPJ: 63.111.412/0001-19  •  Pablo Santos  •  (11) 91639-5199', margin, footerY + 4);
+  doc.text(`CNPJ: ${companyCNPJ}  •  ${companyOwner}  •  ${companyPhone}`, margin, footerY + 4);
 
   const fileName = `Orcamento_${budget.clientName?.replace(/\s+/g, '_') || 'novo'}_${new Date().toISOString().slice(0, 10)}.pdf`;
   doc.save(fileName);
