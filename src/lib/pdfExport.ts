@@ -2,8 +2,28 @@ import jsPDF from 'jspdf';
 import { Budget, Room, calculateRoomSubtotal, calculateBudgetTotal, formatCurrency } from '@/types/budget';
 import logoImg from '@/assets/logo-marcenaria.png';
 import { getClient } from '@/store/clientStore';
+import { getMyProfile } from '@/store/profileStore';
+
+async function loadImageAsDataURL(url: string): Promise<string | null> {
+  try {
+    const res = await fetch(url);
+    const blob = await res.blob();
+    return await new Promise((resolve) => {
+      const r = new FileReader();
+      r.onloadend = () => resolve(r.result as string);
+      r.onerror = () => resolve(null);
+      r.readAsDataURL(blob);
+    });
+  } catch { return null; }
+}
 
 export async function generateBudgetPDF(budgetInput: Budget) {
+  const profile = await getMyProfile();
+  const companyName = (profile?.companyName || 'Marcenaria Quality').toUpperCase();
+  const companyCNPJ = profile?.cnpj || '63.111.412/0001-19';
+  const companyPhone = profile?.phone || '(11) 91639-5199';
+  const companyOwner = profile?.fullName || 'Pablo Santos';
+  const customLogo = profile?.logoUrl ? await loadImageAsDataURL(profile.logoUrl) : null;
   // Enrich with up-to-date linked client (if any)
   let budget = budgetInput;
   if (budgetInput.clientId) {
